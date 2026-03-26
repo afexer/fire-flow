@@ -1,0 +1,203 @@
+# ============================================================
+# private-data-patterns.yml
+# ============================================================
+# Patterns scanned during /fire-add-new-skill (Step 4.7)
+# to catch project-specific private data before it enters
+# the skills library.
+#
+# WHY THIS EXISTS:
+# Auto-captured skills from /fire-add-new-skill --from session
+# record real commands verbatim. That's how 150 instances of
+# private data (server paths, ministry names, branch names)
+# leaked into 39 skill files during the v4.2 hackathon.
+#
+# HOW TO USE:
+# Add your project-specific patterns below. Each pattern has:
+#   - pattern: regex or literal string to match (case-insensitive)
+#   - replacement: what to substitute
+#   - severity: BLOCK (must fix) or WARN (can override)
+#   - description: why this is private
+#
+# The scan runs AFTER security (4.5) and credential (4.6) gates,
+# BEFORE the skill is saved to disk.
+# ============================================================
+
+version: "1.0"
+
+# ─────────────────────────────────────────────────────────────
+# SYSTEM PATHS (apply to any project on this machine)
+# ─────────────────────────────────────────────────────────────
+system_patterns:
+  - pattern: '[Cc]:[/\\]Users[/\\]\w+'
+    replacement: 'C:/Users/YOUR_USERNAME'
+    severity: BLOCK
+    description: "Windows user home directory path"
+
+  - pattern: '~/\w[\w-]*/'
+    replacement: '~/your-app/'
+    severity: WARN
+    description: "Unix home-relative application path"
+
+  - pattern: '~/public_html'
+    replacement: '~/public_html'
+    severity: WARN
+    description: "Web server public directory (may be intentional in hosting skills)"
+
+# ─────────────────────────────────────────────────────────────
+# PROJECT-SPECIFIC (edit per project)
+# ─────────────────────────────────────────────────────────────
+project_patterns:
+  # Application names and paths
+  - pattern: 'mern-community-lms'
+    replacement: 'your-project-name'
+    severity: BLOCK
+    description: "Project repository name"
+
+  - pattern: '~/mern-app'
+    replacement: '~/your-app'
+    severity: BLOCK
+    description: "Server application path"
+
+  - pattern: 'mern.lms\|mern_lms'
+    replacement: 'your_database'
+    severity: BLOCK
+    description: "Database name"
+
+  # Branch names
+  - pattern: 'student-beautification'
+    replacement: 'your-feature-branch'
+    severity: BLOCK
+    description: "Project-specific git branch"
+
+  - pattern: 'postgresql-dev'
+    replacement: 'your-dev-branch'
+    severity: WARN
+    description: "Development branch name"
+
+  # PM2 process names
+  - pattern: '[Ll][Mm][Ss]-[Ss][Ee][Rr][Vv][Ee][Rr]'
+    replacement: 'YOUR-APP-SERVER'
+    severity: BLOCK
+    description: "PM2 process name"
+
+  # Organization / ministry names (space-separated forms)
+  - pattern: '[Ss]chool\s+[Oo]f\s+[Tt]he\s+[Hh]oly\s+[Ss]pirit'
+    replacement: 'Your Organization Name'
+    severity: BLOCK
+    description: "Organization name (space-separated)"
+
+  - pattern: '[Ss]chool\s+[Oo]f\s+[Tt]he\s+[Pp]rophets'
+    replacement: 'Your Organization Name'
+    severity: BLOCK
+    description: "Organization name (space-separated)"
+
+  - pattern: '[Mm]elchizedek\s*[Pp]riests'
+    replacement: 'Your Organization'
+    severity: BLOCK
+    description: "Organization name"
+
+  # Organization names (concatenated forms — existing smoke test patterns)
+  - pattern: 'schooloftheprophets'
+    replacement: 'yourorganization'
+    severity: BLOCK
+    description: "Organization name (concatenated)"
+
+  - pattern: 'schooloftheholyspirit'
+    replacement: 'yourorganization'
+    severity: BLOCK
+    description: "Organization name (concatenated)"
+
+  - pattern: 'melchizedekpriests'
+    replacement: 'yourorganization'
+    severity: BLOCK
+    description: "Organization name (concatenated)"
+
+  - pattern: 'binamupower'
+    replacement: 'yourhandle'
+    severity: BLOCK
+    description: "Personal identifier"
+
+  - pattern: 'thierrynakoa'
+    replacement: 'yourname'
+    severity: BLOCK
+    description: "Personal identifier (concatenated)"
+
+  # Server / infrastructure
+  - pattern: 'server1\.tiberiusprimus\.com'
+    replacement: 'server1.yourhostingprovider.com'
+    severity: BLOCK
+    description: "Server hostname"
+
+  - pattern: 'tiberiusprimus'
+    replacement: 'yourhostingprovider'
+    severity: BLOCK
+    description: "Hosting provider domain"
+
+  - pattern: 'schoolo2'
+    replacement: 'your-ssh-user'
+    severity: BLOCK
+    description: "SSH username"
+
+  # Domain names
+  - pattern: 'schooloftheprophets\.club'
+    replacement: 'yourdomain.com'
+    severity: BLOCK
+    description: "Production domain"
+
+  - pattern: 'melchizedekpriests\.com'
+    replacement: 'yourdomain.com'
+    severity: BLOCK
+    description: "Production domain"
+
+  # IP addresses
+  - pattern: '65\.75\.211\.\d+'
+    replacement: 'YOUR.SERVER.IP.ADDR'
+    severity: BLOCK
+    description: "Server IP address"
+
+  # Supabase project IDs
+  - pattern: 'ovigezezdnacnhxhtsbx'
+    replacement: 'YOUR_SUPABASE_PROJECT_ID'
+    severity: BLOCK
+    description: "Supabase project identifier"
+
+  - pattern: 'jpfrnunodkjplslfouqw'
+    replacement: 'YOUR_SUPABASE_PROJECT_ID'
+    severity: BLOCK
+    description: "Supabase project identifier"
+
+  # Credential fragments
+  - pattern: '51KFrTBB'
+    replacement: 'YOUR_CREDENTIAL'
+    severity: BLOCK
+    description: "Credential fragment"
+
+  - pattern: 'AVPCNK2OFrV3Wx46'
+    replacement: 'YOUR_CREDENTIAL'
+    severity: BLOCK
+    description: "Credential fragment"
+
+  # Location
+  - pattern: 'Columbia,?\s*SC'
+    replacement: 'Your City, ST'
+    severity: WARN
+    description: "Physical location identifier"
+
+# ─────────────────────────────────────────────────────────────
+# GENERIC PATTERNS (catch common leaks in any project)
+# ─────────────────────────────────────────────────────────────
+generic_patterns:
+  - pattern: 'STRIPE_SECRET_KEY\s*=\s*\S+'
+    replacement: 'STRIPE_SECRET_KEY=sk_test_YOUR_KEY'
+    severity: BLOCK
+    description: "Stripe secret key assignment"
+
+  - pattern: 'ZOOM_WEBHOOK_SECRET_TOKEN\s*=\s*\S+'
+    replacement: 'ZOOM_WEBHOOK_SECRET_TOKEN=YOUR_TOKEN'
+    severity: BLOCK
+    description: "Zoom webhook secret"
+
+  - pattern: '\b[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}\b'
+    replacement: 'xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+    severity: WARN
+    description: "UUID (may be a project/account identifier)"
